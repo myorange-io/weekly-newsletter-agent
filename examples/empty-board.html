@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>공지사항 | 예시재단</title>
+  <meta property="og:title" content="예시재단">
+  <meta property="og:description" content="예시재단 공식 홈페이지입니다.">
+</head>
+<body>
+  <!--
+    이 페이지가 문지기의 존재 이유입니다.
+    글 내용은 없고 게시판 틀만 있는데, 태그를 걷어내면 메뉴·버튼 문자열이 본문처럼 남습니다.
+    이게 통과하면 LLM은 주소와 재단 이름만 보고
+    "존재하지 않는 사업명과 마감일"을 만들어냅니다. 실제로 겪은 일입니다.
+  -->
+  <nav>
+    <a href="/">홈으로</a>
+    <a href="/menu">전체메뉴</a>
+    <a href="/login">로그인</a>
+    <a href="/join">회원가입</a>
+    <a href="/search">검색</a>
+    <a href="/sitemap">사이트맵</a>
+  </nav>
+  <div id="content">
+    <h1>공지사항</h1>
+    <table>
+      <thead><tr><th>번호</th><th>제목</th><th>작성일</th></tr></thead>
+      <tbody>
+        <tr><td colspan="3">등록된 글이 없습니다.</td></tr>
+      </tbody>
+    </table>
+    <div class="paging"><a href="#">이전글</a> <a href="#">목록</a> <a href="#">다음글</a> <a href="#">글쓰기</a></div>
+  </div>
+  <footer><a href="/privacy">개인정보처리방침</a></footer>
+</body>
+</html>

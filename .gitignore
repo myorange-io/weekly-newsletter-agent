@@ -1,0 +1,6 @@
+# 작업 산출물 — 각자의 실행 결과이므로 저장소에 넣지 않는다
+work/
+out/
+
+.DS_Store
+node_modules/
