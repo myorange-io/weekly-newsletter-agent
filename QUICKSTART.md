@@ -125,7 +125,7 @@ node scripts/gate.mjs 내첫번째
 | 파일 | 무엇 |
 |---|---|
 | [`config/categories.md`](config/categories.md) | 분류 체계 — 조직의 분류로 바꾸세요 |
-| [`config/voice-rules.md`](config/voice-rules.md) | 문체 규칙 — **비어 있습니다. 채우세요** |
+| [`config/voice-rules.md`](config/voice-rules.md) | 문체 규칙 — **오렌지레터 것이 채워져 있습니다. 통째로 지우고 당신 것으로 바꾸세요** |
 | [`config/gate.json`](config/gate.json) | 게이트 하한선 — 처음엔 그대로 두고, 반려된 걸 눈으로 본 뒤 조이세요 |
 
 그리고 [PORTING.md](PORTING.md)를 읽으세요. 일을 어디서 잘라야 하는지에 대한 규칙 네 개입니다.

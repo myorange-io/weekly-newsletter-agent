@@ -20,27 +20,61 @@ const normalizePipes = (s) => s.replace(/[ㅣ｜│]/g, '|').replace(/\s*\|\s*/g
  */
 const val = (x) => (Array.isArray(x) ? x : (x?.값 ?? x));
 
+/**
+ * 조직명이 들어 있는 칸의 위치. 채용은 `경력구분 | 조직명 | 직무` 라 두 번째다.
+ * 이걸 틀리면 R1이 엉뚱한 칸의 공백을 지운다.
+ */
+const 조직명칸 = (분류) => (분류 === '채용' ? 1 : 0);
+
 export function applyFormat(draft, fields, rules) {
   const 기록 = [];
   let t = normalizePipes(draft.trim());
   if (t !== draft.trim()) 기록.push('유사 파이프 문자를 | 로 통일');
 
-  // 1) 문장 끝 마침표 제거 (중간 마침표는 유지)
+  // R6) 해시태그·이모지 제거
+  const r6 = t.replace(/#[^\s|]+/g, '').replace(/\p{Extended_Pictographic}/gu, '');
+  if (r6 !== t) { t = r6; 기록.push('R6 해시태그·이모지 제거'); }
+
+  // R2) 큰따옴표 → 작은따옴표
+  const r2 = t.replace(/[""]/g, "'").replace(/"/g, "'");
+  if (r2 !== t) { t = r2; 기록.push('R2 큰따옴표 → 작은따옴표'); }
+
+  // R1·R3) 조직명 칸: 내부 공백 제거 + 나열 기호를 가운뎃점으로
+  const 칸 = t.split('|').map((s) => s.trim());
+  const i = 조직명칸(fields?.분류);
+  if (칸.length > i + 1) {
+    const 전 = 칸[i];
+    let 후 = 전.replace(/\s*[xX&]\s+|\s+[xX&]\s*/g, '·').replace(/\s*,\s*/g, '·');
+    후 = 후.replace(/\s+/g, ''); // R1 — 나열 기호 처리 뒤에 공백을 지운다
+    if (후 !== 전) {
+      칸[i] = 후;
+      t = 칸.join(' | ');
+      기록.push(`R1·R3 조직명 정리: "${전}" → "${후}"`);
+    }
+  }
+
+  // R4-a) 문장 끝 마침표 제거 (중간 마침표는 유지)
   const before = t;
   t = t.replace(/\.\s*$/, '');
-  if (t !== before) 기록.push('끝 마침표 제거');
+  if (t !== before) 기록.push('R4 끝 마침표 제거');
 
-  // 2) 느낌표 제거 — 단, 인용부호 안은 남긴다 (인터뷰 인용)
+  // R4-b) 느낌표 제거 — 단, 인용부호 안은 남긴다 (인터뷰 인용)
   if (/!/.test(t)) {
     t = t.replace(/!+/g, (m, off) => {
       const before = t.slice(0, off);
       const quotes = (before.match(/["'"']/g) || []).length;
       return quotes % 2 === 1 ? m : ''; // 홀수면 따옴표 안
     });
-    기록.push('느낌표 제거(인용 안은 유지)');
+    기록.push('R4 느낌표 제거(인용 안은 유지)');
   }
 
-  // 3) 마감일 조립 — 날짜가 있는데 문장에 없으면 끝에 붙인다
+  // R14) 부제 대시 → 작은따옴표.
+  // 반드시 R4 뒤에 온다. 먼저 감싸면 끝의 느낌표까지 따옴표 안으로 들어가고,
+  // 그러면 R4가 그걸 인용문으로 오인해 살려둔다. (실제로 낸 버그다.)
+  const r14 = t.replace(/\s+[-–—]\s+([^|'"()]+?)\s*$/, " '$1'");
+  if (r14 !== t) { t = r14; 기록.push('R14 부제를 작은따옴표로'); }
+
+  // R5) 마감일 조립 — 날짜가 있는데 문장에 없으면 끝에 붙인다
   const 마감 = fields?.마감일;
   const 마감표현 = fields?.마감표현;
   if ((val(rules.마감_붙일_분류) ?? []).includes(fields?.분류)) {
@@ -49,11 +83,11 @@ export function applyFormat(draft, fields, rules) {
       const [, m, d] = 마감.match(/^\d{4}-(\d{2})-(\d{2})$/) ?? [];
       if (m) {
         t = `${t} (~${Number(m)}/${Number(d)})`;
-        기록.push(`마감일 조립: (~${Number(m)}/${Number(d)})`);
+        기록.push(`R5 마감일 조립: (~${Number(m)}/${Number(d)})`);
       }
     } else if (!이미있음 && 마감표현) {
       t = `${t} (${마감표현})`;
-      기록.push(`마감 표현 조립: (${마감표현})`);
+      기록.push(`R5 마감 표현 조립: (${마감표현})`);
     } else if (!이미있음 && !마감 && !마감표현) {
       기록.push('⚠ 마감일 없음 — 사람이 확인해야 합니다');
     }
